@@ -1,5 +1,6 @@
 ﻿using CulturalTastes_API_.NET.Models;
 using CulturalTastes_API_.NET.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
 
@@ -38,7 +39,9 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<List<Film>>> GetAll()
     {
         Console.WriteLine("FilmController.Get lancé");
-        return Ok(await _filmService.GetFilmsAsync(false));
+        List<Film> films = await _filmService.GetFilmsAsync(false);
+
+        return (films != null) ? Ok(films) : BadRequest();
     }
 
     [HttpGet]
@@ -46,8 +49,13 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<List<Film>>> GetAllInOneAuthor(string author)
     {
         Console.WriteLine($"FilmController.GetAllInOneAuthor lancé sur {author}");
-        List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author,false);
-        return (films != null) ? Ok(films) : NotFound();
+        if (author != "")
+        {
+            List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author, false);
+            return (films != null) ? Ok(films) : NotFound();
+        }
+        return BadRequest("author ne doit pas être vide");
+      
     }
 
     [HttpGet]
@@ -55,8 +63,13 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<List<Film>>> GetAllInOneGenre(string genre)
     {
         Console.WriteLine($"FilmController.GetAllInOneGenre lancé sur {genre}");
-        List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre,false);
-        return (films != null) ? Ok(films) : NotFound();
+        if (genre != "")
+        {
+            List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre, false);
+            return (films != null) ? Ok(films) : NotFound();
+        }
+        return BadRequest("genre ne doit pas être vide");
+       
     }         
     
 
@@ -78,8 +91,13 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<List<Film>>> GetRandomInOneAuthor(string author)
     {
         Console.WriteLine($"FilmController.GetRandomInOneAuthor lancé sur {author}");
-        List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author, true);
-        return (films != null) ? Ok(films) : NotFound();
+        if (author != "")
+        {
+            List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author, true);
+            return (films != null) ? Ok(films) : NotFound();
+        }
+        return BadRequest("author ne doit pas être vide");
+     
     }
 
     [HttpGet]
@@ -87,8 +105,14 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<List<Film>>> GetRandomInOneGenre(string genre)
     {
         Console.WriteLine($"FilmController.GetRandomInOneGenre lancé sur {genre}");
-        List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre, true);
-        return (films != null) ? Ok(films) : NotFound();
+        if (genre != "")
+        {
+            List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre, true);
+            return (films != null) ? Ok(films) : NotFound();
+        }
+        return BadRequest("genre ne doit pas être vide");
+        
+
     }
 
     #endregion
@@ -98,25 +122,24 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<Film>> GetOne(string id)
     {
         Console.WriteLine($"FilmController.GetOne lancé sur {id}");
-        Film film = await _filmService.GetOneFilmAsync(id);     
-
-        if (film == null)
+        if (id != "")
         {
-            return NotFound();
+            Film film = await _filmService.GetOneFilmAsync(id);
+            return (film != null) ? Ok(film) : NotFound();
         }
-
-        return Ok(film);
+        return BadRequest("id ne doit pas être nul");
     }
 
     [HttpGet]
     [Route("getOneRandom")]
-    public async Task<Film> GetOneRandom()
+    public async Task<ActionResult<Film>> GetOneRandom()
     {
         Console.WriteLine("Film.Controller.GetOneRandom lancé");
-        return await _filmService.GetOneRandomFilmAsnc();
+        Film film = await _filmService.GetOneRandomFilmAsnc();
+        return (film != null) ? Ok(film) : BadRequest();
     }
 
-
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> Post(Film newFilm)
     {
@@ -142,6 +165,7 @@ public class FilmController : ControllerBase
     //    return NoContent();
     //}
 
+    [Authorize]
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
