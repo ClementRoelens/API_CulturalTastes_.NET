@@ -148,36 +148,4 @@ public class FilmController : ControllerBase
         return CreatedAtAction(nameof(GetOne), new { id = newFilm._id }, newFilm);
     }
 
-    //[HttpPut("{id:length(24)}")]
-    //public async Task<IActionResult> Update(string id, Film updatedFilm)
-    //{
-    //    var film = await _filmService.GetOneFilmAsync(id);
-
-    //    if (film is null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    updatedFilm._id = film._id;
-
-    //    await _filmService.UpdateFilmAsync(id, updatedFilm);
-
-    //    return NoContent();
-    //}
-
-    [Authorize]
-    [HttpDelete("{id:length(24)}")]
-    public async Task<IActionResult> Delete(string id)
-    {
-        var film = await _filmService.GetOneFilmAsync(id);
-
-        if (film is null)
-        {
-            return NotFound();
-        }
-
-        await _filmService.RemoveAsync(id);
-
-        return NoContent();
-    }
 }

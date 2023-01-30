@@ -76,11 +76,6 @@ namespace CulturalTastes_API_.NET.Services
         {
             var filter = Builders<Film>.Filter.AnyEq(film => film.genres, seekedGenre);
             List<Film> films = await _filmsCollection.Find(filter).ToListAsync();
-            Console.WriteLine($"Les films de {seekedGenre} trouvés sont : ");
-            foreach (Film film in films)
-            {
-                Console.WriteLine(film.title);
-            }
             return random ? GetNfilms(films) : films;
         }
 
@@ -125,7 +120,5 @@ namespace CulturalTastes_API_.NET.Services
             return await _filmsCollection.FindOneAndUpdateAsync(filter, update, options);
         }
 
-        public async Task RemoveAsync(string id) =>
-            await _filmsCollection.DeleteOneAsync(x => x._id == new ObjectId(id));
     }
 }
