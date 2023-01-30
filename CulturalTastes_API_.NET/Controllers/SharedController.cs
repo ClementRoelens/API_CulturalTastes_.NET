@@ -2,7 +2,6 @@
 using CulturalTastes_API_.NET.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson;
 using Newtonsoft.Json.Linq;
 
 namespace CulturalTastes_API_.NET.Controllers
@@ -22,12 +21,12 @@ namespace CulturalTastes_API_.NET.Controllers
             _opinionService = opinionService;
         }
 
-        private void LikeOrDislikeResult(string itemId , ref List<string> actionList, ref List<string> reverseList, ref int actionOperation, ref int reverseOperation) 
+        private void LikeOrDislikeResult(string itemId, ref List<string> actionList, ref List<string> reverseList, ref int actionOperation, ref int reverseOperation)
         {
             if (actionList.IndexOf(itemId) == -1)
             {
                 actionList.Add(itemId);
-                actionOperation = 1; 
+                actionOperation = 1;
                 if (reverseList.IndexOf(itemId) != -1)
                 {
                     reverseList.Remove(itemId);
@@ -44,7 +43,7 @@ namespace CulturalTastes_API_.NET.Controllers
         [Authorize]
         [HttpPut]
         [Route("likeOrDislikeItem")]
-        public async Task<ActionResult> LikeOrDislike([FromBody] JObject body)
+        public async Task<ActionResult> LikeOrDislikeItem([FromBody] JObject body)
         {
             Console.WriteLine("Entrée dans SharedController.LikeOrDislike");
             string action = body["action"].Value<string>();
@@ -73,39 +72,124 @@ namespace CulturalTastes_API_.NET.Controllers
             }
 
             // Faire des tests quand on aura les autres types d'oeuvres
-            await _userService.UpdateUserLikesAndDislikesAsync(userId, newLikedList, newDislikedList);
+            await _userService.LikeOrDislikeItemAsync(userId, newLikedList, newDislikedList);
             await _filmService.UpdateFilmLikesAsync(itemId, likesOperation, dislikesOperation);
 
             return Ok();
         }
 
+        [Authorize]
         [HttpPost]
         [Route("addOneOpinion")]
-        public async Task<ActionResult<CompleteResult>> AddOpinion([FromBody] JObject body)
+        public async Task<ActionResult> AddOpinion([FromBody] JObject body)
         {
             Console.WriteLine("SharedController.AddOpinion()");
             string itemId = body["itemId"].Value<string>();
             string userId = body["userId"].Value<string>();
+            string username = body["username"].Value<string>();
             string content = body["content"].Value<string>();
             string itemType = body["itemType"].Value<string>();
 
-            Opinion opinion = await _opinionService.CreateOpinionAsync(new Opinion(content, userId));
+            Opinion opinion = await _opinionService.CreateOpinionAsync(new Opinion(content, itemType, userId, username));
             if (opinion is not null)
             {
-                Film film = await _filmService.UpdateFilmOpinionAsync(itemId, opinion._id.ToString());
+                Console.WriteLine("Avis créé");
+                // Tester l'itemType quand les autres types seront implémentés
+                Film film = await _filmService.CreatedOpinionAsync(itemId, opinion._id.ToString());
                 if (film is not null)
                 {
-                    User user = await _userService.UpdateUserCreatedOpinionAsync(userId, opinion._id.ToString());
+                    Console.WriteLine("Film mis à jour");
+                    User user = await _userService.CreatedOpinionAsync(userId, opinion._id.ToString());
 
                     if (user is not null)
                     {
-                        return new CreatedResult(new Uri($"opinion/{opinion._id.ToString()}"), new CompleteResult(film, user, opinion));
+                        Console.WriteLine("User mis à jour");
+                        return new OkObjectResult(opinion);
                     }
                 }
-             
             }
-
             return BadRequest();
         }
+
+        [Authorize]
+        [HttpPut]
+        [Route("likeOpinion")]
+        public async Task<ActionResult<Opinion>> LikeOpinion([FromBody] JObject body)
+        {
+            string opinionId = body["opinionId"].Value<string>();
+            string userId = body["userId"].Value<string>();
+            Console.WriteLine($"SharedController.LikeOpinion() sur l'user {userId} et l'opinion {opinionId}");
+            User user = await _userService.GetOneUserAsync(userId);
+            if (user is not null)
+            {
+                List<string> opinionsId = user.likedOpinionsId;
+                int index = opinionsId.IndexOf(opinionId);
+                int operation;
+                if (index == -1)
+                {
+                    Console.WriteLine("L'avis n'était pas encore liké");
+                    operation = 1;
+                    opinionsId.Add(opinionId);
+                }
+                else
+                {
+                    Console.WriteLine("L'avis était déjà liké");
+                    operation = -1;
+                    opinionsId.Remove(opinionId);
+                }
+                Opinion opinion = await _opinionService.LikeOrDislikeOpinionAsync(opinionId, operation);
+                if (opinion != null)
+                {
+                    User updatedUser = await _userService.LikeOrDislikeOpinionAsync(userId, opinionsId, operation);
+                    if (updatedUser != null)
+                    {
+                        return Ok(opinion);
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult("Erreur lors de la mise à jour de l'user");
+                    }
+                }
+                return new BadRequestObjectResult("Erreur lors de la mise à jour de l'avis");
+            }
+            return NotFound();
+        }
+
+        [Authorize]
+        [HttpDelete]
+        [Route("removeOpinion/{opinionId}/{userId}/{itemId}")]
+        public async Task<ActionResult> RemoveOpinion(string opinionId, string userId, string itemId)
+        {
+            Console.WriteLine($"SharedController.EraseOpinion({opinionId},{userId},{itemId}");
+            User user = await _userService.GetOneUserAsync(userId);
+            List<string> newOpinionsId = user.opinionsId;
+            newOpinionsId.Remove(opinionId);
+            User updatedUser = await _userService.RemoveOpinionAsync(newOpinionsId, userId);
+            if (updatedUser != null)
+            {
+                Console.WriteLine("User mis à jour");
+                Film film = await _filmService.GetOneFilmAsync(itemId);
+                List<string> newFilmOpinionsId = film.opinionsId;
+                // Vérifier ici
+                newFilmOpinionsId.Remove(opinionId);
+                Film updatedFilm = await _filmService.RemoveOpinionAsync(itemId, newFilmOpinionsId);
+                if (updatedFilm != null)
+                {
+                    Console.WriteLine("Film mis à jour");
+                    await _opinionService.RemoveOpinionAsync(opinionId);
+                    Console.WriteLine("Avis supprimé");
+                    return Ok();
+                }
+                else
+                {
+                    return new BadRequestObjectResult("Erreur lors de la mise à jour du film (user correctement mis à jour");
+                }
+            }
+            else
+            {
+                return new BadRequestObjectResult("Erreur lors de la mise à jour de l'user");
+            }
+        }
+
     }
 }

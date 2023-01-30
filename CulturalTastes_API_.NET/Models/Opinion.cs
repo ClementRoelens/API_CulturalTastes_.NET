@@ -10,22 +10,28 @@ namespace CulturalTastes_API_.NET.Models
         public ObjectId _id { get; set; }
         public string content { get; set; }
         public int likes { get; set; }
-        public string author { get; set; }
+        public string authorId { get; set; }
+        public string authorName { get; set; }
+        public string itemType { get; set; }
         public int? __v { get; set; }
 
-        public Opinion(string content, string author)
+        public Opinion(string content, string itemType, string authorId, string authorName)
         {
             this._id = ObjectId.GenerateNewId();
             this.content = content;
             this.likes = 0;
-            this.author = author;
+            this.authorId = authorId;
+            this.authorName = authorName;
+            this.itemType = itemType;
         }
-        public Opinion(string content, int likes, string author)
+        public Opinion(string content, string itemType, int likes, string authorId, string authorName)
         {
             this._id = ObjectId.GenerateNewId();
             this.content = content;
             this.likes = likes;
-            this.author = author;
+            this.authorId = authorId;
+            this.authorName = authorName;
+            this.itemType = itemType;
         }
     }
 }

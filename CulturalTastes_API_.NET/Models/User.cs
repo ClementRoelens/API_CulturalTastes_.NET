@@ -43,5 +43,19 @@ namespace CulturalTastes_API_.NET.Models
             this.isAdmin = isAdmin;
             this.token = token;
         }
+
+        public User(ObjectId id, string username, string hashedPassword, List<string> likedFilmsId, List<string> dislikedFilmsId,
+            List<string> opinionsId, List<string> likedOpinionsId, bool isAdmin)
+        {
+            this._id = id;
+            this.username = username;
+            this.password = hashedPassword;
+            this.likedFilmsId = likedFilmsId;
+            this.dislikedFilmsId = dislikedFilmsId;
+            this.opinionsId = opinionsId;
+            this.likedOpinionsId = likedOpinionsId;
+            this.isAdmin = isAdmin;
+            this.token = null;
+        }
     }
 }

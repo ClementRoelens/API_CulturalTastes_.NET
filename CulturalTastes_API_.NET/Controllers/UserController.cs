@@ -22,12 +22,21 @@ namespace UserStoreApi.Controllers
 
         [HttpPost]
         [Route("signin")]
-        public async Task<ActionResult<User>> LoginAsync([FromBody] JObject body)
+        public async Task<ActionResult<User>> SigninAsync([FromBody] JObject body)
         {
             Console.WriteLine("UserController.Login");
             string username = body["username"].Value<string>();
             string password = body["password"].Value<string>();
             return await _userService.LoginAsync(username, password);
+        }
+        [HttpPost]
+        [Route("signup")]
+        public async Task<ActionResult> SignUp([FromBody] JObject body)
+        {
+            string username = body["username"].Value<string>();
+            string password = body["password"].Value<string>();
+            User user = await _userService.Signup(username, password);
+            return CreatedAtAction(nameof(GetOneUser), new { id = user._id }, user);
         }
 
         [HttpGet]

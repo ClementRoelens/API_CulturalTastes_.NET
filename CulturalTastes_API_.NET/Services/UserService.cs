@@ -56,16 +56,6 @@ namespace CulturalTastes_API_.NET.Services
                         new Claim("userId", user._id.ToString())
                     };
 
-                //var tokenDescriptor = new SecurityTokenDescriptor
-                //{
-                //    Subject = new ClaimsIdentity(claims),
-                //    Expires = DateTime.UtcNow.AddMinutes(30),
-                //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt.Key"])),
-                //    SecurityAlgorithms.HmacSha256Signature)
-                //};
-                //var tokenHandler = new JwtSecurityTokenHandler();
-                //var token = tokenHandler.CreateToken(tokenDescriptor);
-
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                 var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                 var token = new JwtSecurityToken(
@@ -95,6 +85,21 @@ namespace CulturalTastes_API_.NET.Services
             }
         }
 
+        public async Task<User> Signup(string username, string password)
+        {
+            string hashedPassword = BC.HashString(password);
+            User user = new User(
+                new ObjectId(),
+                username,
+                hashedPassword,
+                new List<string>(),
+                new List<string>(),
+                new List<string>(),
+                new List<string>(),
+                false);
+            await _usersCollection.InsertOneAsync(user);
+            return user;
+        }
 
         public async Task<User> GetOneUserAsync(string id)
         {
@@ -110,7 +115,7 @@ namespace CulturalTastes_API_.NET.Services
             return transmittedUser;
         }
 
-        public async Task<User> UpdateUserLikesAndDislikesAsync(string id, List<string> likedFilmsId, List<string> dislikedFilmsId)
+        public async Task<User> LikeOrDislikeItemAsync(string id, List<string> likedFilmsId, List<string> dislikedFilmsId)
         {
             var filter = Builders<User>.Filter.Eq(user => user._id, new ObjectId(id));
             var update = Builders<User>.Update.Set(user => user.likedFilmsId, likedFilmsId).Set(user => user.dislikedFilmsId, dislikedFilmsId);
@@ -127,7 +132,7 @@ namespace CulturalTastes_API_.NET.Services
                 );
         }
 
-        public async Task<User> UpdateUserCreatedOpinionAsync(string userId, string opinionId)
+        public async Task<User> CreatedOpinionAsync(string userId, string opinionId)
         {
             var filter = Builders<User>.Filter.Eq(user => user._id, new ObjectId(userId));
             var update = Builders<User>.Update.Push(user => user.opinionsId, opinionId);
@@ -140,8 +145,31 @@ namespace CulturalTastes_API_.NET.Services
                 user.dislikedFilmsId,
                 user.opinionsId,
                 user.likedOpinionsId,
-                user.isAdmin
-                );
+                user.isAdmin);
+        }
+
+        public async Task<User> LikeOrDislikeOpinionAsync(string userId, List<string> opinionsId, int operation)
+        {
+            var filter = Builders<User>.Filter.Eq(user => user._id, new ObjectId(userId));
+            var update = Builders<User>.Update.Set(user => user.likedOpinionsId, opinionsId);            
+            var options = new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After };
+            User user = await _usersCollection.FindOneAndUpdateAsync(filter, update, options);
+            return new User(
+                user._id,
+                user.username,
+                user.likedFilmsId,
+                user.dislikedFilmsId,
+                user.opinionsId,
+                user.likedOpinionsId,
+                user.isAdmin);
+        }
+
+        public async Task<User> RemoveOpinionAsync(List<string> newOpinionsId, string userId)
+        {
+            var filter = Builders<User>.Filter.Eq(user => user._id, new ObjectId(userId));
+            var update = Builders<User>.Update.Set(user => user.opinionsId, newOpinionsId);
+            var options = new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After };
+            return await _usersCollection.FindOneAndUpdateAsync(filter, update, options);
         }
     }
 }

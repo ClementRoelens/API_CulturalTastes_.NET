@@ -109,17 +109,23 @@ namespace CulturalTastes_API_.NET.Services
             return await _filmsCollection.FindOneAndUpdateAsync(filter, update, options);
         }
 
-        public async Task<Film> UpdateFilmOpinionAsync(string id, string opinionId)
+        public async Task<Film> CreatedOpinionAsync(string filmId, string opinionId)
         {
-            var filter = Builders<Film>.Filter.Eq("_id", id);
+            var filter = Builders<Film>.Filter.Eq(film => film._id, new ObjectId(filmId));
             var update = Builders<Film>.Update.Push(film => film.opinionsId,opinionId);
             var options = new FindOneAndUpdateOptions<Film> { ReturnDocument = ReturnDocument.After };
             return await _filmsCollection.FindOneAndUpdateAsync(filter, update, options);
         }
 
+        public async Task<Film> RemoveOpinionAsync(string filmId, List<string> newOpininsId)
+        {
+            var filter = Builders<Film>.Filter.Eq(film => film._id, new ObjectId(filmId));
+            var update = Builders<Film>.Update.Set(film => film.opinionsId, newOpininsId);
+            var options = new FindOneAndUpdateOptions<Film> { ReturnDocument = ReturnDocument.After };
+            return await _filmsCollection.FindOneAndUpdateAsync(filter, update, options);
+        }
 
         public async Task RemoveAsync(string id) =>
             await _filmsCollection.DeleteOneAsync(x => x._id == new ObjectId(id));
-
     }
 }

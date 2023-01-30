@@ -47,7 +47,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine($"FilmController.GetAllInOneAuthor lancé sur {author}");
         List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author,false);
-        return (films is not null) ? Ok(films) : NotFound();
+        return (films != null) ? Ok(films) : NotFound();
     }
 
     [HttpGet]
@@ -56,7 +56,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine($"FilmController.GetAllInOneGenre lancé sur {genre}");
         List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre,false);
-        return (films is not null) ? Ok(films) : NotFound();
+        return (films != null) ? Ok(films) : NotFound();
     }         
     
 
@@ -70,7 +70,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine("FilmController.GetRandomFilms lancé");
         List<Film> films = await _filmService.GetFilmsAsync(true);
-        return (films is not null) ? Ok(films) : NotFound();
+        return (films != null) ? Ok(films) : NotFound();
     }
 
     [HttpGet]
@@ -79,7 +79,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine($"FilmController.GetRandomInOneAuthor lancé sur {author}");
         List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author, true);
-        return (films is not null) ? Ok(films) : NotFound();
+        return (films != null) ? Ok(films) : NotFound();
     }
 
     [HttpGet]
@@ -88,7 +88,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine($"FilmController.GetRandomInOneGenre lancé sur {genre}");
         List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre, true);
-        return (films is not null) ? Ok(films) : NotFound();
+        return (films != null) ? Ok(films) : NotFound();
     }
 
     #endregion
@@ -98,9 +98,9 @@ public class FilmController : ControllerBase
     public async Task<ActionResult<Film>> GetOne(string id)
     {
         Console.WriteLine($"FilmController.GetOne lancé sur {id}");
-        var film = await _filmService.GetOneFilmAsync(id);     
+        Film film = await _filmService.GetOneFilmAsync(id);     
 
-        if (film is null)
+        if (film == null)
         {
             return NotFound();
         }

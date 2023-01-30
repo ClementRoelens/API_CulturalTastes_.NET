@@ -30,10 +30,30 @@ namespace CulturalTastes_API_.NET.Services
 
         public async Task<Opinion> CreateOpinionAsync(Opinion opinion)
         {
-            Opinion newOpinion = new Opinion(opinion.content, opinion.likes, opinion.author);
+            Opinion newOpinion = new Opinion(opinion.content,opinion.itemType,opinion.authorId,opinion.authorName);
             await _opinionsCollection.InsertOneAsync(newOpinion);
+            return await _opinionsCollection.Find(opinion => opinion._id == newOpinion._id).FirstAsync();
+        }
 
-            return await _opinionsCollection.Find(o => o._id == newOpinion._id).FirstAsync();
+        public async Task<Opinion> LikeOrDislikeOpinionAsync(string opinionId, int operation)
+        {
+            var filter = Builders<Opinion>.Filter.Eq(opinion => opinion._id, new ObjectId(opinionId));
+            var update = Builders<Opinion>.Update.Inc(opinion => opinion.likes, operation);
+            var options = new FindOneAndUpdateOptions<Opinion> { ReturnDocument = MongoDB.Driver.ReturnDocument.After };
+            return await _opinionsCollection.FindOneAndUpdateAsync(filter, update, options);
+        }
+
+        public async Task<Opinion> ModifyOpinion(string id, string content)
+        {
+            var filter = Builders<Opinion>.Filter.Eq(opinion => opinion._id, new ObjectId(id));
+            var update = Builders<Opinion>.Update.Set(opinion => opinion.content, content);
+            var options = new FindOneAndUpdateOptions<Opinion> { ReturnDocument = MongoDB.Driver.ReturnDocument.After };
+            return await _opinionsCollection.FindOneAndUpdateAsync(filter, update, options);
+        }
+
+        public async Task RemoveOpinionAsync(string opinionId)
+        {
+            await _opinionsCollection.DeleteOneAsync(opinion => opinion._id == new ObjectId(opinionId));
         }
     }
 }

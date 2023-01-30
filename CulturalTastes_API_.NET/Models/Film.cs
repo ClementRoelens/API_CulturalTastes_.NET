@@ -15,7 +15,7 @@ namespace CulturalTastes_API_.NET.Models
         public DateTime date { get; set; }
         public int likes { get; set; }
         public int dislikes { get; set; }
-        public string[] opinionsId { get; set; }
+        public List<string> opinionsId { get; set; }
         public string[] genres { get; set; }
         public string imageUrl { get; set; }
         public int? __v { get; set; }
