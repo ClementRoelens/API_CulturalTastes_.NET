@@ -76,6 +76,7 @@ namespace CulturalTastes_API_.NET.Services
             }
             else
             {
+                Console.WriteLine("Password incorrect");
                 return null;
             }
         }
