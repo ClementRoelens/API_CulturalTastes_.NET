@@ -45,7 +45,7 @@ namespace CulturalTastes_API_.NET.Controllers
         [Authorize]
         [HttpPut]
         [Route("likeOrDislikeItem")]
-        public async Task<ActionResult> LikeOrDislikeItem([FromBody] JObject body)
+        public async Task<ActionResult<LikeItemResult>> LikeOrDislikeItem([FromBody] JObject body)
         {
             Console.WriteLine("Entrée dans SharedController.LikeOrDislike");
 
@@ -102,10 +102,11 @@ namespace CulturalTastes_API_.NET.Controllers
                     }
 
                     // Faire des tests quand on aura les autres types d'oeuvres
-                    await _userService.LikeOrDislikeItemAsync(userId, newLikedList, newDislikedList);
-                    await _filmService.UpdateFilmLikesAsync(itemId, likesOperation, dislikesOperation);
+                    User updatedUser = await _userService.LikeOrDislikeItemAsync(userId, newLikedList, newDislikedList);
+                    Film updatedFilm = await _filmService.UpdateFilmLikesAsync(itemId, likesOperation, dislikesOperation);
 
-                    return Ok();
+                    LikeItemResult res = new LikeItemResult(updatedFilm, updatedUser);
+                    return Ok(res);
                 }
                 else
                 {
@@ -122,7 +123,7 @@ namespace CulturalTastes_API_.NET.Controllers
         [Authorize]
         [HttpPost]
         [Route("addOneOpinion")]
-        public async Task<ActionResult> AddOpinion([FromBody] JObject body)
+        public async Task<ActionResult<CompleteResult>> AddOpinion([FromBody] JObject body)
         {
             Console.WriteLine("SharedController.AddOpinion()");
 
@@ -176,7 +177,7 @@ namespace CulturalTastes_API_.NET.Controllers
                         if (updatedUser != null)
                         {
                             Console.WriteLine("User mis à jour");
-                            return new OkObjectResult(opinion);
+                            return new OkObjectResult(new CompleteResult(film,updatedUser,opinion));
                         }
                     }
                 }
@@ -189,7 +190,7 @@ namespace CulturalTastes_API_.NET.Controllers
         [Authorize]
         [HttpPut]
         [Route("likeOpinion")]
-        public async Task<ActionResult<Opinion>> LikeOpinion([FromBody] JObject body)
+        public async Task<ActionResult<LikeOpinionResult>> LikeOpinion([FromBody] JObject body)
         {
             string opinionId = body["opinionId"].Value<string>();
             string userId = body["userId"].Value<string>();
@@ -233,7 +234,7 @@ namespace CulturalTastes_API_.NET.Controllers
                         User updatedUser = await _userService.LikeOrDislikeOpinionAsync(userId, opinionsId, operation);
                         if (updatedUser != null)
                         {
-                            return Ok(opinion);
+                            return Ok(new LikeOpinionResult(opinion,updatedUser));
                         }
                         else
                         {

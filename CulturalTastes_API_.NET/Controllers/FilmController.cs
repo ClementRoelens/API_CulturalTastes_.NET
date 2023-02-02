@@ -3,6 +3,7 @@ using CulturalTastes_API_.NET.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Xml.Linq;
+using static System.Net.WebRequestMethods;
 
 namespace FilmStoreApi.Controllers;
 
@@ -22,16 +23,17 @@ public class FilmController : ControllerBase
         return Ok(_filmService.GetGenres());
     }
 
-    [HttpGet("images/{url}")]
-    public ActionResult GetImage(string url)
-    {
-        Console.WriteLine("FilmController.GetImage sur "+url);
+    // Méthode uniquement utilisé pour le dev
+    //[HttpGet("images/{url}")]
+    //public ActionResult GetImage(string url)
+    //{
+    //    Console.WriteLine("FilmController.GetImage sur "+url);
 
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "images", url);
-        var extension = Path.GetExtension(path);
 
-        return PhysicalFile(path, "image/jpeg");
-    }
+    //    var path = Path.Combine(Directory.GetCurrentDirectory(), "images", url);
+
+    //    return PhysicalFile(path, "image/jpeg");
+    //}
 
     #region GetALL
 

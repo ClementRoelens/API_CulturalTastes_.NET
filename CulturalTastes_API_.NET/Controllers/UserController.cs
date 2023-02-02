@@ -78,7 +78,7 @@ namespace UserStoreApi.Controllers
             if (id != "")
             {
                 User user = await _userService.GetOneUserAsync(id);
-                return (user is not null) ? Ok(user) : NotFound();
+                return (user != null) ? Ok(user) : NotFound();
             }
             else
             {
