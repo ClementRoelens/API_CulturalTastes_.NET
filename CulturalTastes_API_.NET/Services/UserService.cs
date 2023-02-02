@@ -40,14 +40,10 @@ namespace CulturalTastes_API_.NET.Services
 
         public async Task<User> LoginAsync(string username, string password)
         {
-            Console.WriteLine("UserService.Login()");
             User user = await _usersCollection.Find(user => user.username == username).FirstOrDefaultAsync();
-            Console.WriteLine($"Utilisateur trouvé : {user.username}");
 
-            Console.WriteLine("Le password n'est pas nul");
             if (BC.Verify(password, user.password))
             {
-                Console.WriteLine("Password correct");
 
                 var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
@@ -80,7 +76,6 @@ namespace CulturalTastes_API_.NET.Services
             }
             else
             {
-                Console.WriteLine("Password incorrect");
                 return null;
             }
         }
