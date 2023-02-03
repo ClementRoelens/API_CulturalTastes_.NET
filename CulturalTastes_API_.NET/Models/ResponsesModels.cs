@@ -32,14 +32,14 @@ namespace CulturalTastes_API_.NET.Models
     public class CompleteResult
     {
         [JsonProperty]
-        public Film Item { get; set; }
+        public Film Film { get; set; }
         [JsonProperty]
         public User User { get; set; }
         [JsonProperty]
         public Opinion Opinion { get; set; }
         public CompleteResult(Film film, User user, Opinion opinion)
         {
-            this.Item = film;
+            this.Film = film;
             this.User = user;
             this.Opinion = opinion;
         }
