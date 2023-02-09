@@ -1,5 +1,6 @@
 ﻿using CulturalTastes_API_.NET.Models;
 using CulturalTastes_API_.NET.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.IdentityModel.Tokens;
@@ -41,9 +42,10 @@ namespace UserStoreApi.Controllers
             }
             return (validUsername && validPassword) ? Ok(await _userService.LoginAsync(username, password)) : BadRequest(modelState);
         }
+        
         [HttpPost]
         [Route("signup")]
-        public async Task<ActionResult> SignUp([FromBody] JObject body)
+        public async Task<ActionResult> SignUpAsync([FromBody] JObject body)
         {
             Console.WriteLine("UserController.Signup");
             string username = body["username"].Value<string>();
@@ -62,7 +64,7 @@ namespace UserStoreApi.Controllers
             if (validUsername && validPassword)
             {
                 User user = await _userService.Signup(username, password);
-                return CreatedAtAction(nameof(GetOneUser), new { id = user._id }, user);
+                return Created("", user);
             }
             else
             {
@@ -70,15 +72,28 @@ namespace UserStoreApi.Controllers
             }
         }
 
+        //public async Task<ActionResult<User>> GetCreatedUserAsync(string id) =>
+        //    await _userService.GetOneUserAsync(id);
+        
+
+        [Authorize]
         [HttpGet]
         [Route("getOneUser/{id}")]
-        public async Task<ActionResult<User>> GetOneUser(string id)
+        public async Task<ActionResult<User>> GetOneUserAsync(string id)
         {
             Console.WriteLine($"UserController.GetOneUser lancé sur {id}");
             if (id != "")
             {
-                User user = await _userService.GetOneUserAsync(id);
-                return (user != null) ? Ok(user) : NotFound();
+                var userId = User.FindFirst("userId")?.Value;
+                if (userId == id)
+                {
+                    User user = await _userService.GetOneUserAsync(id);
+                    return (user != null) ? Ok(user) : NotFound();
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             else
             {

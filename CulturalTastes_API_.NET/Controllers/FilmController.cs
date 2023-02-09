@@ -23,17 +23,17 @@ public class FilmController : ControllerBase
         return Ok(_filmService.GetGenres());
     }
 
-    // Méthode uniquement utilisé pour le dev
-    //[HttpGet("images/{url}")]
-    //public ActionResult GetImage(string url)
-    //{
-    //    Console.WriteLine("FilmController.GetImage sur "+url);
+    //Méthode uniquement utilisé pour le dev
+   [HttpGet("images/{url}")]
+    public ActionResult GetImage(string url)
+    {
+        Console.WriteLine("FilmController.GetImage sur " + url);
 
 
-    //    var path = Path.Combine(Directory.GetCurrentDirectory(), "images", url);
+        var path = Path.Combine(Directory.GetCurrentDirectory(), "images", url);
 
-    //    return PhysicalFile(path, "image/jpeg");
-    //}
+        return PhysicalFile(path, "image/jpeg");
+    }
 
     #region GetALL
 
@@ -133,6 +133,14 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
+    [Route("search/{searchedValue}")]
+    public async Task<ActionResult<List<Film>>> Search(string searchedValue)
+    {
+        List<Film> films = await _filmService.Search(searchedValue);
+        return (films.Count > 0) ? Ok(films) : NotFound();
+    }
+
+    [HttpGet]
     [Route("getOneRandom")]
     public async Task<ActionResult<Film>> GetOneRandom()
     {
@@ -141,13 +149,13 @@ public class FilmController : ControllerBase
         return (film != null) ? Ok(film) : BadRequest();
     }
 
-    [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> Post(Film newFilm)
-    {
-        await _filmService.CreateFilmAsync(newFilm);
+    //[Authorize]
+    //[HttpPost]
+    //public async Task<IActionResult> Post(Film newFilm)
+    //{
+    //    await _filmService.CreateFilmAsync(newFilm);
 
-        return CreatedAtAction(nameof(GetOne), new { id = newFilm._id }, newFilm);
-    }
+    //    return CreatedAtAction(nameof(GetOne), new { id = newFilm._id }, newFilm);
+    //}
 
 }
