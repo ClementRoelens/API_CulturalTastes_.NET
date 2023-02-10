@@ -96,7 +96,7 @@ namespace CulturalTastes_API_.NET.Services
 
         public async Task<List<Film>> Search(string searchedValue)
         {
-            var filter = Builders<Film>.Filter.Regex("title", new BsonRegularExpression(searchedValue, "i"));
+            var filter = Builders<Film>.Filter.AnyEq("tags", searchedValue);
             List<Film> films = await _filmsCollection.Find(filter).ToListAsync();
 
             return (films.Count > _numberOfReturnedRandomFilms) ? films.GetRange(0, _numberOfReturnedRandomFilms) : films;

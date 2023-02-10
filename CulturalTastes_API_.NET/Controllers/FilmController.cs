@@ -136,7 +136,7 @@ public class FilmController : ControllerBase
     [Route("search/{searchedValue}")]
     public async Task<ActionResult<List<Film>>> Search(string searchedValue)
     {
-        List<Film> films = await _filmService.Search(searchedValue);
+        List<Film> films = await _filmService.Search(searchedValue.ToLower());
         return (films.Count > 0) ? Ok(films) : NotFound();
     }
 
