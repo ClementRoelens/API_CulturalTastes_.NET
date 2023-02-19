@@ -7,7 +7,6 @@ namespace CulturalTastes_API_.NET.Services
 {
     public class FilmService
     {
-
         private readonly IMongoCollection<Film> _filmsCollection;
         private readonly string[] _genres = {
             "Action",

@@ -24,7 +24,7 @@ public class FilmController : ControllerBase
     }
 
     //Méthode uniquement utilisé pour le dev
-   [HttpGet("images/{url}")]
+   [HttpGet("images/films/{url}")]
     public ActionResult GetImage(string url)
     {
         Console.WriteLine("FilmController.GetImage sur " + url);
@@ -42,6 +42,7 @@ public class FilmController : ControllerBase
     {
         Console.WriteLine("FilmController.Get lancé");
         List<Film> films = await _filmService.GetFilmsAsync(false);
+        films.Sort((x,y) => string.Compare(x.title,y.title));
 
         return (films != null) ? Ok(films) : BadRequest();
     }
@@ -54,6 +55,7 @@ public class FilmController : ControllerBase
         if (author != "")
         {
             List<Film> films = await _filmService.GetFilmsInOneAuthorAsync(author, false);
+            films.Sort((x, y) => string.Compare(x.title, y.title));
             return (films != null) ? Ok(films) : NotFound();
         }
         return BadRequest("author ne doit pas être vide");
@@ -68,6 +70,7 @@ public class FilmController : ControllerBase
         if (genre != "")
         {
             List<Film> films = await _filmService.GetFilmsInOneGenreAsync(genre, false);
+            films.Sort((x, y) => string.Compare(x.title, y.title));
             return (films != null) ? Ok(films) : NotFound();
         }
         return BadRequest("genre ne doit pas être vide");
