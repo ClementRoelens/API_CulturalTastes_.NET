@@ -17,6 +17,7 @@ namespace CulturalTastes_API_.NET.Controllers
         [Route("getGenres")]
         public ActionResult<string[]> GetGenres()
         {
+            Console.WriteLine("Entrée dans AlbumController.GetGenres");
             return Ok(_albumService.GetGenres());
         }
 

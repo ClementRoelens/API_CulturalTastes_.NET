@@ -24,16 +24,16 @@ public class FilmController : ControllerBase
     }
 
     //Méthode uniquement utilisé pour le dev
-   [HttpGet("images/films/{url}")]
-    public ActionResult GetImage(string url)
-    {
-        Console.WriteLine("FilmController.GetImage sur " + url);
+   //[HttpGet("images/films/{url}")]
+   // public ActionResult GetImage(string url)
+   // {
+   //     Console.WriteLine("FilmController.GetImage sur " + url);
 
 
-        var path = Path.Combine(Directory.GetCurrentDirectory(), "images", url);
+   //     var path = Path.Combine(Directory.GetCurrentDirectory(), "films", url);
 
-        return PhysicalFile(path, "image/jpeg");
-    }
+   //     return PhysicalFile(path, "image/jpeg");
+   // }
 
     #region GetALL
 

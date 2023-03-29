@@ -28,7 +28,6 @@ namespace UserStoreApi.Controllers
         {
             string username = body["username"].Value<string>();
             string password = body["password"].Value<string>();
-            Console.WriteLine($"UserController.Singin de {username}");
             bool validUsername = (username != "");
             bool validPassword = (password != "");
             var modelState = new ModelStateDictionary();
@@ -40,7 +39,30 @@ namespace UserStoreApi.Controllers
             {
                 ModelState.AddModelError("Mot de passe", "Votre mot de passe ne peut pas être vide");
             }
-            return (validUsername && validPassword) ? Ok(await _userService.LoginAsync(username, password)) : BadRequest(modelState);
+            if (validUsername && validPassword)
+            {
+                User tempUser = await _userService.GetOneUserByUsernameAsync(username);
+                if (tempUser != null)
+                {
+                    User signedInUser = await _userService.LoginAsync(tempUser, password);
+                    if (signedInUser != null)
+                    {
+                        return Ok(signedInUser);
+                    }
+                    else
+                    {
+                        return Unauthorized("Le mot de passe est incorrect");
+                    }
+                }
+                else
+                {
+                    return NotFound("Utilisateur non-trouvé");
+                }
+            }
+            else
+            {
+                return BadRequest(modelState);
+            }
         }
         
         [HttpPost]
