@@ -1,5 +1,6 @@
 ﻿using CulturalTastes_API_.NET.Models;
 using CulturalTastes_API_.NET.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.IdentityModel.Tokens;
@@ -27,7 +28,6 @@ namespace UserStoreApi.Controllers
         {
             string username = body["username"].Value<string>();
             string password = body["password"].Value<string>();
-            Console.WriteLine($"UserController.Singin de {username}");
             bool validUsername = (username != "");
             bool validPassword = (password != "");
             var modelState = new ModelStateDictionary();
@@ -39,11 +39,35 @@ namespace UserStoreApi.Controllers
             {
                 ModelState.AddModelError("Mot de passe", "Votre mot de passe ne peut pas être vide");
             }
-            return (validUsername && validPassword) ? Ok(await _userService.LoginAsync(username, password)) : BadRequest(modelState);
+            if (validUsername && validPassword)
+            {
+                User tempUser = await _userService.GetOneUserByUsernameAsync(username);
+                if (tempUser != null)
+                {
+                    User signedInUser = await _userService.LoginAsync(tempUser, password);
+                    if (signedInUser != null)
+                    {
+                        return Ok(signedInUser);
+                    }
+                    else
+                    {
+                        return Unauthorized("Le mot de passe est incorrect");
+                    }
+                }
+                else
+                {
+                    return NotFound("Utilisateur non-trouvé");
+                }
+            }
+            else
+            {
+                return BadRequest(modelState);
+            }
         }
+        
         [HttpPost]
         [Route("signup")]
-        public async Task<ActionResult> SignUp([FromBody] JObject body)
+        public async Task<ActionResult> SignUpAsync([FromBody] JObject body)
         {
             Console.WriteLine("UserController.Signup");
             string username = body["username"].Value<string>();
@@ -62,7 +86,7 @@ namespace UserStoreApi.Controllers
             if (validUsername && validPassword)
             {
                 User user = await _userService.Signup(username, password);
-                return CreatedAtAction(nameof(GetOneUser), new { id = user._id }, user);
+                return Created("", user);
             }
             else
             {
@@ -70,15 +94,28 @@ namespace UserStoreApi.Controllers
             }
         }
 
+        //public async Task<ActionResult<User>> GetCreatedUserAsync(string id) =>
+        //    await _userService.GetOneUserAsync(id);
+        
+
+        [Authorize]
         [HttpGet]
         [Route("getOneUser/{id}")]
-        public async Task<ActionResult<User>> GetOneUser(string id)
+        public async Task<ActionResult<User>> GetOneUserAsync(string id)
         {
             Console.WriteLine($"UserController.GetOneUser lancé sur {id}");
             if (id != "")
             {
-                User user = await _userService.GetOneUserAsync(id);
-                return (user != null) ? Ok(user) : NotFound();
+                var userId = User.FindFirst("userId")?.Value;
+                if (userId == id)
+                {
+                    User user = await _userService.GetOneUserAsync(id);
+                    return (user != null) ? Ok(user) : NotFound();
+                }
+                else
+                {
+                    return Unauthorized();
+                }
             }
             else
             {

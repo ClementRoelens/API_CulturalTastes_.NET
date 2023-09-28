@@ -38,13 +38,15 @@ namespace CulturalTastes_API_.NET.Services
             _configuration = configuration;
         }
 
-        public async Task<User> LoginAsync(string username, string password)
+        public async Task<User> GetOneUserByUsernameAsync(string username)
         {
-            User user = await _usersCollection.Find(user => user.username == username).FirstOrDefaultAsync();
+            return await _usersCollection.Find(user => user.username == username).FirstOrDefaultAsync();
+        }
 
+        public async Task<User> LoginAsync(User user, string password)
+        {
             if (BC.Verify(password, user.password))
             {
-
                 var claims = new[] {
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -76,7 +78,6 @@ namespace CulturalTastes_API_.NET.Services
             }
             else
             {
-                Console.WriteLine("Password incorrect");
                 return null;
             }
         }
@@ -147,7 +148,7 @@ namespace CulturalTastes_API_.NET.Services
         public async Task<User> LikeOrDislikeOpinionAsync(string userId, List<string> opinionsId, int operation)
         {
             var filter = Builders<User>.Filter.Eq(user => user._id, new ObjectId(userId));
-            var update = Builders<User>.Update.Set(user => user.likedOpinionsId, opinionsId);            
+            var update = Builders<User>.Update.Set(user => user.likedOpinionsId, opinionsId);
             var options = new FindOneAndUpdateOptions<User> { ReturnDocument = ReturnDocument.After };
             User user = await _usersCollection.FindOneAndUpdateAsync(filter, update, options);
             return new User(

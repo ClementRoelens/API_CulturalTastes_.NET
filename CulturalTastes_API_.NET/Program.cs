@@ -19,11 +19,18 @@ builder.Services.AddCors(options =>
         });
 });
 
-
 // Add services to the container.
 builder.Services.Configure<FilmsDatabaseSettings>(
     builder.Configuration.GetSection("FilmDatabase"));
 builder.Services.AddSingleton<FilmService>();
+
+builder.Services.Configure<AlbumsDatabaseSettings>(
+    builder.Configuration.GetSection("AlbumDatabase"));
+builder.Services.AddSingleton<AlbumService>();
+
+builder.Services.Configure<GamesDatabaseSettings>(
+    builder.Configuration.GetSection("GameDatabase"));
+builder.Services.AddSingleton<GameService>();
 
 builder.Services.Configure<UsersDatabaseSettings>(
     builder.Configuration.GetSection("UserDatabase"));

@@ -7,21 +7,22 @@ namespace CulturalTastes_API_.NET.Services
 {
     public class FilmService
     {
-
         private readonly IMongoCollection<Film> _filmsCollection;
         private readonly string[] _genres = {
             "Action",
-    "Aventure",
-    "Comédie",
-    "Drame",
-    "Fantasy",
-    "Guerre",
-    "Historique",
-    "Horreur",
-    "Romance",
-    "Science-fiction",
-    "Thriller",
-    "Western"
+            "Aventure",
+            "Comédie",
+            "Drame",
+            "Fantasy",
+            "Fantastique",
+            "Guerre",
+            "Historique",
+            "Horreur",
+            "Policier",
+            "Romance",
+            "Science-fiction",
+            "Thriller",
+            "Western"
         };
         public FilmService(
             IOptions<FilmsDatabaseSettings> filmsDatabaseSettings)
@@ -92,6 +93,14 @@ namespace CulturalTastes_API_.NET.Services
             return films[rand.Next(films.Count)];
         }
 
+        public async Task<List<Film>> Search(string searchedValue)
+        {
+            var filter = Builders<Film>.Filter.AnyEq("tags", searchedValue);
+            List<Film> films = await _filmsCollection.Find(filter).ToListAsync();
+
+            return (films.Count > _numberOfReturnedRandomFilms) ? films.GetRange(0, _numberOfReturnedRandomFilms) : films;
+            
+        }
 
         public async Task CreateFilmAsync(Film newFilm) =>
             await _filmsCollection.InsertOneAsync(newFilm);
