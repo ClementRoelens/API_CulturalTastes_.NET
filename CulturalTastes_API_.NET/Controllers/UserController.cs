@@ -100,7 +100,7 @@ namespace UserStoreApi.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("getOneUser/{id}")]
+        [Route("{id}")]
         public async Task<ActionResult<User>> GetOneUserAsync(string id)
         {
             Console.WriteLine($"UserController.GetOneUser lancé sur {id}");

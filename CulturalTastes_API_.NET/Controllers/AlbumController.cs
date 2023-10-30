@@ -14,7 +14,7 @@ namespace CulturalTastes_API_.NET.Controllers
             _albumService = albumService;
 
         [HttpGet]
-        [Route("getGenres")]
+        [Route("genres")]
         public ActionResult<string[]> GetGenres()
         {
             Console.WriteLine("Entrée dans AlbumController.GetGenres");
@@ -46,7 +46,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getAllInOneAuthor/{author}")]
+        [Route("author/{author}")]
         public async Task<ActionResult<List<Album>>> GetAllInOneAuthor(string author)
         {
             Console.WriteLine($"AlbumController.GetAllInOneAuthor lancé sur {author}");
@@ -61,7 +61,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getAllInOneGenre/{genre}")]
+        [Route("genre/{genre}")]
         public async Task<ActionResult<List<Album>>> GetAllInOneGenre(string genre)
         {
             Console.WriteLine($"AlbumController.GetAllInOneGenre lancé sur {genre}");
@@ -81,7 +81,7 @@ namespace CulturalTastes_API_.NET.Controllers
         #region GetRandomAlbums
 
         [HttpGet]
-        [Route("getRandomAlbums")]
+        [Route("random")]
         public async Task<ActionResult<List<Album>>> GetRandomAlbums()
         {
             Console.WriteLine("AlbumController.GetRandomAlbums lancé");
@@ -90,7 +90,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getRandomInOneAuthor/{author}")]
+        [Route("random/author/{author}")]
         public async Task<ActionResult<List<Album>>> GetRandomInOneAuthor(string author)
         {
             Console.WriteLine($"AlbumController.GetRandomInOneAuthor lancé sur {author}");
@@ -104,7 +104,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getRandomInOneGenre/{genre}")]
+        [Route("random/genre/{genre}")]
         public async Task<ActionResult<List<Album>>> GetRandomInOneGenre(string genre)
         {
             Console.WriteLine($"AlbumController.GetRandomInOneGenre lancé sur {genre}");
@@ -121,7 +121,7 @@ namespace CulturalTastes_API_.NET.Controllers
         #endregion
 
         [HttpGet]
-        [Route("getOneAlbum/{id}")]
+        [Route("{id}")]
         public async Task<ActionResult<Album>> GetOne(string id)
         {
             Console.WriteLine($"AlbumController.GetOne lancé sur {id}");
@@ -142,7 +142,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getOneRandom")]
+        [Route("random/one")]
         public async Task<ActionResult<Album>> GetOneRandom()
         {
             Console.WriteLine("Album.Controller.GetOneRandom lancé");

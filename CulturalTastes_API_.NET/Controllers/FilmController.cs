@@ -17,7 +17,7 @@ public class FilmController : ControllerBase
         _filmService = filmService;
 
     [HttpGet]
-    [Route("getGenres")]
+    [Route("genres")]
     public ActionResult<string[]> GetGenres()
     {
         return Ok(_filmService.GetGenres());
@@ -48,7 +48,7 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getAllInOneAuthor/{author}")]
+    [Route("author/{author}")]
     public async Task<ActionResult<List<Film>>> GetAllInOneAuthor(string author)
     {
         Console.WriteLine($"FilmController.GetAllInOneAuthor lancé sur {author}");
@@ -63,7 +63,7 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getAllInOneGenre/{genre}")]
+    [Route("genre/{genre}")]
     public async Task<ActionResult<List<Film>>> GetAllInOneGenre(string genre)
     {
         Console.WriteLine($"FilmController.GetAllInOneGenre lancé sur {genre}");
@@ -83,7 +83,7 @@ public class FilmController : ControllerBase
     #region GetRandomFilms
 
     [HttpGet]
-    [Route("getRandomFilms")]
+    [Route("random")]
     public async Task<ActionResult<List<Film>>> GetRandomFilms()
     {
         Console.WriteLine("FilmController.GetRandomFilms lancé");
@@ -92,7 +92,7 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getRandomInOneAuthor/{author}")]
+    [Route("random/author/{author}")]
     public async Task<ActionResult<List<Film>>> GetRandomInOneAuthor(string author)
     {
         Console.WriteLine($"FilmController.GetRandomInOneAuthor lancé sur {author}");
@@ -106,7 +106,7 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getRandomInOneGenre/{genre}")]
+    [Route("random/genre/{genre}")]
     public async Task<ActionResult<List<Film>>> GetRandomInOneGenre(string genre)
     {
         Console.WriteLine($"FilmController.GetRandomInOneGenre lancé sur {genre}");
@@ -123,7 +123,7 @@ public class FilmController : ControllerBase
     #endregion
 
     [HttpGet]
-    [Route("getOneFilm/{id}")]
+    [Route("{id}")]
     public async Task<ActionResult<Film>> GetOne(string id)
     {
         Console.WriteLine($"FilmController.GetOne lancé sur {id}");
@@ -144,7 +144,7 @@ public class FilmController : ControllerBase
     }
 
     [HttpGet]
-    [Route("getOneRandom")]
+    [Route("random/one")]
     public async Task<ActionResult<Film>> GetOneRandom()
     {
         Console.WriteLine("Film.Controller.GetOneRandom lancé");

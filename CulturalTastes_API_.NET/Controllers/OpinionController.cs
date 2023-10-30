@@ -19,7 +19,7 @@ namespace CulturalTastes_API_.NET.Controllers
         }
 
         [HttpGet]
-        [Route("getOneOpinion/{id}")]
+        [Route("{id}")]
         public async Task<ActionResult<Opinion>> GetOneOpinionAsync(string id)
         {
             Console.WriteLine($"GetOneOpinion() sur {id}");
@@ -37,7 +37,6 @@ namespace CulturalTastes_API_.NET.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("modifyOpinion")]
         public async Task<ActionResult<Opinion>> ModifyOpinion([FromBody] JObject body)
         {
             Console.WriteLine("OpinionController.ModifyOpinion lancé");
